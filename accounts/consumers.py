@@ -1,5 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+from .models import Chatroom
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -43,3 +44,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'message': message
         }))
+        Chatroom.objects.create(room=self.room_name, message=message)
+    

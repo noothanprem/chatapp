@@ -6,6 +6,9 @@
     <title>Chat Rooms</title>
 </head>
 <body>
+    {% block content%}
+    <h1>hi {{ user.username}}</h1>
+    <br>
     What chat room would you like to enter?<br/>
     <input id="room-name-input" type="text" size="100"/><br/>
     <input id="room-name-submit" type="button" value="Enter"/>
@@ -20,8 +23,9 @@
 
         document.querySelector('#room-name-submit').onclick = function(e) {
             var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/'+ roomName + '/';
+            window.location.pathname = '/login/index/'+ roomName + '/';
         };
     </script>
+    {% endblock %}
 </body>
 </html>

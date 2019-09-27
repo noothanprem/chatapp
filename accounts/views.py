@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 import json
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -52,10 +52,10 @@ def login(request):
                 smddata['data'] = [Token]
             except KeyError as e:
                 print(e)
-            return render(request, 'chat/index.html')
+            return redirect('/login/index')
         else:
             messages.info(request, 'invalid credentials')
-            render(request, 'accounts/login.html')
+            # render(request, 'accounts/login.html')
     return render(request, 'accounts/login.html')
 
 
@@ -97,12 +97,6 @@ def register(request):
 
                 key = jwt.encode(payload, "secret", algorithm="HS256").decode('utf-8')
 
-                # try:
-                    
-                # except KeyError as e:
-                #     print(e)
-                # print(jwt_token,'>>>>>>>>>')
-                # print(get_current_site(request).domain)
                 currentsite = get_current_site(request)
                 mail_subject='Link to activate the account'
                 mail_message = render_to_string('accounts/activate.html', {
@@ -110,22 +104,17 @@ def register(request):
                     'domain': get_current_site(request).domain,
                     'token': key,
                 })
-                # print(get_current_site(request).domain)
-                # mail_message=(str(currentsite) + '/accounts/activate/' + Token)
-                # fromdjango='noothanprem@gmail.com'
+                
                 recipient_email=['noothan627@gmail.com']
                 email=EmailMessage(mail_subject, mail_message, to=[recipient_email])
                 try:
                     email.send()
-                    # send_mail(subject, tokenlink,fromdjango,to, fail_silently=False)
+                    
                 except SMTPException as e:
                     print(e)
 
-                messages.info(request, "Please Check your mail for activating")
-                # print("User created")
-                # return redirect('login')
 
-                return HttpResponse("hi")
+                return HttpResponse("Please Check your mail for activating")
             
         else:
             messages.info(request, 'Passwords doesnt match')
@@ -179,10 +168,7 @@ def reset_password(request, username):
     if User.objects.filter(username=username).exists():
         user1 = User.objects.get(username=username)
         user1.set_password(password1)
-        # if password1 == password2:
-        # else:
-        # messages.info(request,"Password doesn't match")
-        # return redirect('resetpassword')
+        
     return render(request, 'accounts/resetpassword.html')
 
 
@@ -225,11 +211,12 @@ def sendmail(request):
     else:
         return render(request, "accounts/resetmail.html")
 
-
+@login_required(login_url='/login')
 def index(request):
+    
     return render(request, 'chat/index.html', {})
 
-
+@login_required(login_url='/room')
 def room(request, room_name):
     return render(request, 'chat/room.html', {
         'room_name_json': mark_safe(json.dumps(room_name))

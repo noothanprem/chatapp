@@ -13,6 +13,7 @@ import json
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
+from .models import Loggeduser
 
 # Create your views here.
 
@@ -35,9 +36,13 @@ def login(request):
             user = auth.authenticate(username=username, password=password)
         except ValueError as e:
             print(e)
-
         if user is not None:
+        
+
             auth.login(request, user)
+            username=request.user
+            print(username)
+            
 
             jwt_token = {"token": jwt.encode(payload, "secret", algorithm="HS256").decode('utf-8')}
 
@@ -52,6 +57,7 @@ def login(request):
                 smddata['data'] = [Token]
             except KeyError as e:
                 print(e)
+            Loggeduser.objects.create(username=username)
             return redirect('/login/index')
         else:
             messages.info(request, 'invalid credentials')
@@ -60,8 +66,11 @@ def login(request):
 
 
 def logout(request):
+    username=request.user
+    Loggeduser.objects.filter(username=username).delete()
     auth.logout(request)
-    return redirect('/')
+
+    return redirect('http://127.0.0.1:8000/login')
 
 
 def register(request):
@@ -137,6 +146,7 @@ def activate(request, token):
     if user1 is not None:
         user1.is_active = True
         user1.save()
+        localStorage.setItem('favoriteflavor','vanilla')
         return redirect('login_user')
     else:
         return redirect('register')
@@ -218,8 +228,9 @@ def index(request):
 
 @login_required(login_url='/room')
 def room(request, room_name):
+    loggedusers=Loggeduser.objects.all()
     return render(request, 'chat/room.html', {
-        'room_name_json': mark_safe(json.dumps(room_name))
+        'room_name_json': mark_safe(json.dumps(room_name)), 'loggedusers':loggedusers
     })
 
 def home(request):

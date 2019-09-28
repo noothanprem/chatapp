@@ -10,10 +10,16 @@
     <form method="post">
         {% csrf_token %}
         <div>
-            User name : <input type="text" name="username" placeholder="User name" required><br>
+            User name : <input type="text" id="username" name="username" placeholder="User name" required><br>
             Password : <input type="password" name="password" placeholder="Password" required><br>
-            <input type="submit">
-        </div>            
+        
+            <input type="submit" id="submit">
+        </div>     
+        <script>
+            document.querySelector('#submit').onclick = function(e) {
+            var loggeduser = document.getElementById('username').value;
+            localStorage.setItem('loggeduser', loggeduser);}
+        </script>       
     </form>
     <form>
         <div>

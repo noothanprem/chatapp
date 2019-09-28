@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from .models import Chatroom
+from django.http import request
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -39,10 +40,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         message = event['message']
+       
+        #Chatroom.objects.create(room=self.room_name, message=message, user=username)
+        
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message
         }))
-        Chatroom.objects.create(room=self.room_name, message=message)
-    
+        

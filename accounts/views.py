@@ -136,10 +136,10 @@ def register(request):
 def activate(request, token):
     user_details = jwt.decode(token, 'secret', algorithms='HS256')
     user_name = user_details['username']
-    print(user_details,'--------->')
+    
     try:
         user1 = User.objects.get(username=user_name)
-        print('user1','--------->user1')
+        
     except ObjectDoesNotExist as e:
         print(e)
 
@@ -164,7 +164,7 @@ def verify(request, Token):
         currentsite = get_current_site(request)
         string = str(currentsite) + 'accounts/resetpassword/' + user_name + '/'
         reset_password(request, string)
-        return redirect("resetmail.html")
+        #return redirect("resetmail.html")
     else:
         messages.info("Invalid user")
         return redirect('register')
@@ -175,10 +175,15 @@ def reset_password(request, username):
     if request.method == 'POST':
         password1 = request.POST['password1']
         password2 = request.POST['password2']
-    if User.objects.filter(username=username).exists():
-        user1 = User.objects.get(username=username)
-        user1.set_password(password1)
-        
+        if(password1 == password2):
+            username=request.user
+            if User.objects.filter(username=username).exists():
+                user1 = User.objects.get(username=username)
+                user1.set_password(password1)
+                user1.save()
+                return redirect('login_page')
+        else:
+            print("Passwords doesn't match")
     return render(request, 'accounts/resetpassword.html')
 
 
@@ -209,8 +214,9 @@ def sendmail(request):
                     send_mail(subject, message, 'noothanprem@gmail.com', ['noothan627@gmail.com'])
                 except SMTPException as e:
                     print(e)
-                messages.info(request, "Please Check your mail for Resetting the password")
-                return render(request, "accounts/resetmail.html")
+
+                return redirect('http://127.0.0.1:8000/resetmail')
+                #return render(request, "accounts/resetmail.html")
 
             else:
                 messages.info(request, 'Invalid Email id.. Try Once again')

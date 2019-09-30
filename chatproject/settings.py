@@ -143,3 +143,4 @@ EMAIL_HOST_USER = 'noothanprem@gmail.com'
 EMAIL_HOST_PASSWORD = 'seashore315'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+

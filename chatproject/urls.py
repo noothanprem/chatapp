@@ -18,7 +18,7 @@ from django.urls import path, include
 from accounts import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('register', views.register, name='register_user'),
+    path('register/', views.register, name='register_user'),
     path('activate/<token>/', views.activate, name='activate'),
     path('', include('accounts.urls')),
 ]

@@ -13,8 +13,7 @@ import json
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from .models import Loggeduser
-
+from .models import Loggeduser,Chatroom
 # Create your views here.
 
 def login(request):
@@ -82,6 +81,7 @@ def register(request):
         email = request.POST['email']
 
         if password1 == password2:
+            #checking whether the user exists or not
             if User.objects.filter(username=username).exists():
                 messages.info(request, 'User name is already taken')
                 #return redirect('register')
@@ -91,6 +91,7 @@ def register(request):
             else:
                 
                 try:
+                    #Inserting a new row into the database
                     user = User.objects.create_user(username=username, password=password1, email=email)
                 except ObjectDoesNotExist as e:
                     print(e)
@@ -99,11 +100,12 @@ def register(request):
                 # user.is_active = False
                 # user.save()
 
+                #storing username and email as payload in dictionary format
                 payload = {
                     'username': user.username,
                     'email': user.email
                 }
-
+                #creating the token
                 key = jwt.encode(payload, "secret", algorithm="HS256").decode('utf-8')
 
                 currentsite = get_current_site(request)
@@ -134,35 +136,43 @@ def register(request):
 
 
 def activate(request, token):
+    #decoding the token and getting the datas
     user_details = jwt.decode(token, 'secret', algorithms='HS256')
+    #getting the user name
     user_name = user_details['username']
     
     try:
+        #getting the user object
         user1 = User.objects.get(username=user_name)
         
     except ObjectDoesNotExist as e:
         print(e)
 
     if user1 is not None:
+        #Making is_active flag true
         user1.is_active = True
+        #saving the user
         user1.save()
-        localStorage.setItem('favoriteflavor','vanilla')
         return redirect('login_user')
     else:
         return redirect('register')
 
 
 def verify(request, Token):
+    #decoding the token and storing it into user_details
     user_details = jwt.decode(Token, "secret")
+    #getting the username from token
     user_name = user_details['username']
 
     try:
+        #getting the user object
         u = User.objects.get(username=user_name)
     except ObjectDoesNotExist as e:
         print(e)
     if u is not None:
         currentsite = get_current_site(request)
         string = str(currentsite) + 'accounts/resetpassword/' + user_name + '/'
+        #calling the reset_password method
         reset_password(request, string)
         #return redirect("resetmail.html")
     else:
@@ -172,33 +182,48 @@ def verify(request, Token):
 
 
 def reset_password(request, username):
+    #checking whether the request is post or not
     if request.method == 'POST':
+        #Taking the new password two times
         password1 = request.POST['password1']
         password2 = request.POST['password2']
+
+        #checking whether both the passwords match or not
         if(password1 == password2):
+            #getting the current user name
             username=request.user
+            #checking whether the user wxists in the database or not
             if User.objects.filter(username=username).exists():
+                #getting that user object
                 user1 = User.objects.get(username=username)
+                #setting the password to new password
                 user1.set_password(password1)
+                #saving the user
                 user1.save()
                 return redirect('login_page')
         else:
+            #If two passwords are not same, display passords doesn't match
             print("Passwords doesn't match")
     return render(request, 'accounts/resetpassword.html')
 
 
 def sendmail(request):
+    #checking whether the request is post or not
     if request.method == 'POST':
+        #getting the current user's email id
         emailid = request.POST['email']
 
         try:
+            #checking whether the user exists in the database or not
             if User.objects.filter(email=emailid).exists():
+                #getting that user object
                 u = User.objects.get(email=emailid)
-
+                #storing the username and email as payload
                 payload = {
                     'username': u.username,
                     'email': u.email
                 }
+                #generating the jwt token
                 jwt_token = {"token": jwt.encode(payload, "secret", algorithm="HS256").decode('utf-8')}
 
                 try:
@@ -232,11 +257,20 @@ def index(request):
     
     return render(request, 'chat/index.html', {})
 
+
 @login_required(login_url='/room')
 def room(request, room_name):
+    
+    #gets the queryset which contains all the Loggeduser objects in the database
     loggedusers=Loggeduser.objects.all()
+    messages=Chatroom.objects.filter(room=room_name).values('message')
+    message=list(messages)
+    print(message)
+    
+
+    #passing the loggedusers,messages while rendering
     return render(request, 'chat/room.html', {
-        'room_name_json': mark_safe(json.dumps(room_name)), 'loggedusers':loggedusers
+        'room_name_json': mark_safe(json.dumps(room_name)), 'loggedusers':loggedusers, 'messages': mark_safe(json.dumps(message))
     })
 
 def home(request):

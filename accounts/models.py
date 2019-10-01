@@ -6,8 +6,9 @@ from django.contrib.auth.models import User
 class Chatroom(models.Model):
     room=models.CharField(max_length=100)
     message=models.TextField()
-    posted_date=models.DateTimeField(default=timezone.now)
-    user=models.CharField(max_length=100)
+
+    def __str__(self):
+        return str(self.message)
     
 
 class Loggeduser(models.Model):

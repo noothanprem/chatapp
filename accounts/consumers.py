@@ -42,8 +42,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         
         roomname=self.room_name
-        print(roomname)
-        print(message)
         Chatroom.objects.create(room=roomname,message=message)
         
         # Send message to WebSocket

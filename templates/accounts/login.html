@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Login</title>
-
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
     <form method="post">
         {% csrf_token %}
         <div>
@@ -31,5 +24,4 @@
             <h3>{{ message }}</h3>
             {% endfor %}
     </div>
-</body>
-</html>
+{% endblock %}

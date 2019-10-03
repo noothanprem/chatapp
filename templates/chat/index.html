@@ -1,11 +1,5 @@
-<!-- chat/templates/chat/index.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Rooms</title>
-</head>
-<body>
+{% extends "base.html" %}
+
     {% block content%}
     <h1>hi {{ user.username}}</h1>
     <br>
@@ -35,5 +29,3 @@
          
     </script>
     {% endblock %}
-</body>
-</html>

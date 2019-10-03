@@ -1,11 +1,6 @@
-<!-- chat/templates/chat/room.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Chat Room</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content%}
     <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
     <input id="chat-message-input" type="text" size="100"/><br/>
     <input id="chat-message-submit" type="button" value="Send"/><br/>
@@ -13,14 +8,14 @@
     {% for loggeduser in loggedusers %}
         <p>{{ loggeduser.username }}</p>
     {% endfor %}
-</body>
+    
 <script>
     
     var roomName = {{ room_name_json }};
     var messages={{ messages }};
-    var stringmessages=JSON.stringify(messages)
-    var messagearray=stringmessages.split(",")
-    
+    var stringmessages=JSON.stringify(messages);
+    var type1=typeof messages;
+    console.log(type1)
 
 
     var chatSocket = new WebSocket(
@@ -35,8 +30,11 @@
     };
 
     chatSocket.onopen = function(e) {
-        
-        document.querySelector('#chat-log').value += (messagearray + '\n');
+        for (val in messages) {
+            msg=JSON.stringify(messages[val])
+            msg1=msg.substr(12)
+            document.querySelector('#chat-log').value += (msg1.slice(0,-2) + '\n');
+        }    
     };
 
     chatSocket.onclose = function(e) {
@@ -62,4 +60,4 @@
         messageInputDom.value = '';
     };
 </script>
-</html>
+{% endblock %}

@@ -47,7 +47,7 @@ djangorestframework==3.10.0
 djangorestframework-jwt==1.11.0
 djangorestframework-simplejwt==4.3.0
 docutils==0.14
-ecdsa==0.13.2
+ecdsa==0.13.3
 elasticsearch==6.4.0
 elasticsearch-dsl==6.1.0
 execnet==1.7.1
